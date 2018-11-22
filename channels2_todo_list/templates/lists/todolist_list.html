@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 
 {% block page_title %}
-    Home
+    Your Lists
 {% endblock page_title %}
 
 
 {% block content %}
     <div class="row">
-        {% for tenant in tenants %}
+        <a href="{% url 'lists:create' %}" class="btn btn-primary pull-right" style="margin: 0 15px 10px 0">
+            Create New
+        </a>
+    </div>
+    <div class="row">
+        {% for list in object_list %}
             <div class="col-lg-3">
                 <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>{{ tenant.name }}</h5>
-                    </div>
                     <div class="ibox-content">
-                        <a href="http://{{ tenant.domain_url }}:8000" class="btn btn-primary">Go In!</a>
+                        <h3><i class="fa fa-file-text-o"></i> {{ list.name }}</h3>
+                        <small>Created at: {{ list.created_at }}</small>
                     </div>
                 </div>
             </div>
@@ -22,7 +25,7 @@
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-content">
-                        <h3>Please create some tenants...</h3>
+                        <h3>Please add some lists...</h3>
                     </div>
                 </div>
             </div>

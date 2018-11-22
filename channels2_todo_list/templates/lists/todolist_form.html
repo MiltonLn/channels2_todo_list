@@ -2,11 +2,11 @@
 {% load bootstrap3 %}
 
 {% block page_title %}
-    Create Tenant
+    Create a List
 {% endblock page_title %}
 
 {% block panel_title %}
-    Create Tenant
+    Create a List
 {% endblock panel_title %}
 
 {% block panel_content %}
@@ -14,9 +14,11 @@
         {% csrf_token %}
 
         <div class="row">
-            {% bootstrap_form form layout="horizontal" %}
+            <div class="col-md-9">
+                {% bootstrap_form form layout="horizontal" %}
 
-            <center>{% bootstrap_button "Save" button_type="submit" button_class="btn-primary" %}</center>
+                <center>{% bootstrap_button "Save" button_type="submit" button_class="btn-primary" %}</center>
+            </div>
         </div>
 
     </form>
