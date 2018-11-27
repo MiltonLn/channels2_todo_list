@@ -16,7 +16,11 @@
             <div class="col-lg-3">
                 <div class="ibox float-e-margins">
                     <div class="ibox-content">
-                        <h3><i class="fa fa-file-text-o"></i> {{ list.name }}</h3>
+                        <h3>
+                            <a href="{% url 'lists:detail' list.id %}">
+                                <i class="fa fa-list"></i> {{ list.name }}
+                            </a>
+                        </h3>
                         <small>Created at: {{ list.created_at }}</small>
                     </div>
                 </div>

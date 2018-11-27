@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    {{ object.name }}
+{% endblock page_title %}
+
+{% block panel_title %}
+    {{ object.name }}
+{% endblock panel_title %}
+
+{% block css %}
+    <style>
+        #task-description {
+            display: inline-block;
+            width: 20%;
+        }
+    </style>
+{% endblock css %}
+
+{% block panel_content %}
+    <div class="row">
+        <div class="col-md-9" id="task-list">
+            {% for task in object.task_set.all %}
+                <label>
+                    <input {% if task.completed %} checked {% endif %}
+                           class="task" type="checkbox" data-uuid="{{ task.id }}">
+                    {{ task.description }}
+                </label>
+                <br/>
+            {% endfor %}
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-9">
+            <input class="form-control" type="text" id="task-description" />
+            <input id="task-submit" class="btn btn-primary" type="button" value="Save" />
+        </div>
+    </div>
+{% endblock panel_content %}
+
+{% block js %}
+    <script>
+        const list_id = "{{ object.id }}"
+        let listSocket = new WebSocket(
+            `ws://${window.location.host}/ws/list/${list_id}/`
+        )
+
+        const updateTaskList = (data) => {
+            const description = data.description
+            const uuid = data.id
+
+            $('#task-list').append(`
+                <label>
+                    <input type="checkbox" class="task" data-uuid="${uuid}"> ${description}
+                </label>
+                <br/>
+            `)
+        }
+
+        const toggleTask = (data) => {
+            const uuid = data.id
+            const value = data.value
+
+            $(`.task[data-uuid='${uuid}']`).prop(
+                'checked',
+                value
+            )
+        }
+
+        listSocket.onmessage = (e) => {
+            const data = JSON.parse(e.data)
+            const {type} = data
+
+            switch(type) {
+                case 'refresh_list':
+                    updateTaskList(data)
+                    break
+                case 'toggle_task':
+                    toggleTask(data)
+                    break
+                default:
+                    console.error(`METHOD ${type} NOT SUPPORTED`)
+            }
+        }
+
+        listSocket.onclose = (e) => {
+            console.error("List socket closed unexpectedly")
+        }
+
+        $('#task-description').focus()
+        $('#task-description').keyup((e) => {
+            if (e.keyCode === 13) {
+                $('#task-submit').click()
+            }
+        })
+
+        $('#task-submit').click((e) => {
+            const taskDescriptionDom = $('#task-description')
+            const taskDescription = taskDescriptionDom.val()
+            listSocket.send(JSON.stringify({
+                'type': 'create_task',
+                'description': taskDescription
+            }))
+            taskDescriptionDom.val('')
+        })
+
+        $(document).on('click', '.task', (e) => {
+            const checkbox = e.target
+            const uuid = checkbox.getAttribute('data-uuid')
+            const value = checkbox.checked
+
+            listSocket.send(JSON.stringify({
+                'type': 'update_task',
+                uuid,
+                value
+            }))
+        })
+
+    </script>
+{% endblock js %}
